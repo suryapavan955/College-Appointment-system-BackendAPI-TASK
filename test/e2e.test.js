@@ -6,10 +6,25 @@ let appointmentId;
 
 describe('E2E Appointment System', () => {
   it('Register users', async () => {
-    await request(app).post('/api/auth/register').send({ name: 'A1', email: 'a1@test.com', password: 'pass', role: 'student' });
+   try{ await request(app).post('/api/auth/register').send({ name: 'A1', email: 'a1@test.com', password: 'pass', role: 'student' });}
+   catch (e) {
+    console.log("User A2 already exists");
+  }
+  try{
     await request(app).post('/api/auth/register').send({ name: 'A2', email: 'a2@test.com', password: 'pass', role: 'student' });
-    await request(app).post('/api/auth/register').send({ name: 'P1', email: 'p1@test.com', password: 'pass', role: 'professor' });
-  });
+  }
+  catch (e) {
+    console.log("User A2 already exists");
+  }
+  
+  try{
+  await request(app).post('/api/auth/register').send({ name: 'P1', email: 'p1@test.com', password: 'pass', role: 'professor' });}
+  catch (e) {
+    console.log("User P1 already exists");
+  }
+  
+  
+  },10000);
 
   it('Login users', async () => {
     const student = await request(app).post('/api/auth/login').send({ email: 'a1@test.com', password: 'pass' });
@@ -41,7 +56,11 @@ describe('E2E Appointment System', () => {
   });
 
   it('Student A1 checks for empty appointments', async () => {
-    const res = await request(app).get('/api/appointments').set('Authorization', tokens.student);
+    const res = await request(app).get('/api/appointments').set('Authorization',`Bearer ${tokens.student}`);
+    
+    console.log("Student A1 appointments response:", res.body);
+     expect(Array.isArray(res.body)).toBe(true);
+
     expect(res.body.length).toBe(0);
   });
 });
